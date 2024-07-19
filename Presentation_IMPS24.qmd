@@ -1,0 +1,295 @@
+---
+title: "A Change-Point IRT Model with Application to Speededness Detection"
+format:
+  revealjs:
+    theme: theme.scss
+    transition: slide
+    logo: logo.jpg
+    css: logo.css
+  pdf:
+    documentclass: article
+    classoption: a4paper
+    number-sections: true
+author:
+  - name: Gabriel Wallin
+    affiliations:
+      - School of Mathematical Sciences
+      - Lancaster University
+      - Joint work with Yunxiao Chen (LSE), Xiaoou Li (Minnesota), and Yi-Hsuan Lee (ETS)
+---
+
+
+```{r}
+library(tidyverse)
+library(gt)
+library(readxl)
+theme_set(theme_minimal())
+```
+
+## Motivation
+
+-   Educational tests are crucial for measuring student knowledge and skills
+
+-   Test validity can be threatened by changes in student behavior during the test
+
+-   Factors influencing behavior changes:
+
+    -   Fatigue
+
+    -   Time pressure
+
+    -   Shifts in problem-solving strategy
+
+-   Current IRT models typically assume constant behavior throughout the test
+
+
+## Time-pressure in Educational Testing
+
+![](time_pressure_illustration.png)
+
+## The Problem
+
+-   Changes in response patterns can lead to:
+
+    -   Biased estimation of student abilities
+
+    -   Threats to fairness of score interpretation
+
+-   Existing methods are limited:
+
+    -   Person-fit statistics don't pinpoint where changes occur
+
+    -   Some models assume fixed change points for all test takers
+
+## Our Approach: Change-Point IRT Model
+
+-   Extends baseline IRT model
+
+-   Allows for individual-level change points in response behavior
+
+-   Key features:
+
+    -   Item difficulty parameters can change after a person-specific item
+
+    -   Change point treated as a random latent variable
+
+    -   Estimates distribution of change points in test taker population
+    
+
+## Example
+
+::: {.table}
+
+An example of change-point locations for a test with $J$ items. The earliest change-point is located at item $c$.
+<div style="display: flex; justify-content: center; margin-bottom: 20px;">
+  <table style="border-collapse: collapse; width: 50%; font-size: 25px;">
+      <tr>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;" colspan="10" align="center"><strong>Items</strong></td>
+      </tr>
+      <tr>
+          <td style="border: 1px solid black;"><strong>Respondents</strong></td>
+          <td style="border: 1px solid black;">1</td>
+          <td style="border: 1px solid black;">2</td>
+          <td style="border: 1px solid black;">&#x22EF;</td>
+          <td style="border: 1px solid black;">$c$</td>
+          <td style="border: 1px solid black;">$c+1$</td>
+          <td style="border: 1px solid black;">$c+2$</td>
+          <td style="border: 1px solid black;">$c+3$</td>
+          <td style="border: 1px solid black;">$c+4$</td>
+          <td style="border: 1px solid black;">$c+5$</td>
+          <td style="border: 1px solid black;">$J$</td>
+      </tr>
+      <tr>
+          <td style="border: 1px solid black;">1</td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;">$\tau_1$</td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+      </tr>
+      <tr>
+          <td style="border: 1px solid black;">2</td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;">$\tau_2$</td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+      </tr>
+      <tr>
+          <td style="border: 1px solid black;">3</td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;">$\tau_3$</td>
+      </tr>
+      <tr>
+          <td style="border: 1px solid black;">4</td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;">$\tau_4$</td>
+          <td style="border: 1px solid black;"></td>
+      </tr>
+      <tr>
+          <td style="border: 1px solid black;">5</td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;">$\tau_5$</td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+      </tr>
+      <tr>
+          <td style="border: 1px solid black;">6</td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;">$\tau_6$</td>
+          <td style="border: 1px solid black;"></td>
+          <td style="border: 1px solid black;"></td>
+      </tr>
+      <tr>
+          <td style="border: 1px solid black;">$\vdots$</td>
+          <td style="border: 1px solid black;">$\vdots$</td>
+          <td style="border: 1px solid black;">$\vdots$</td>
+          <td style="border: 1px solid black;">$\vdots$</td>
+          <td style="border: 1px solid black;">$\vdots$</td>
+          <td style="border: 1px solid black;">$\vdots$</td>
+          <td style="border: 1px solid black;">$\vdots$</td>
+          <td style="border: 1px solid black;">$\vdots$</td>
+          <td style="border: 1px solid black;">$\vdots$</td>
+          <td style="border: 1px solid black;">$\vdots$</td>
+          <td style="border: 1px solid black;">$\vdots$</td>
+      </tr>
+  </table>
+</div>
+:::    
+
+## Model Specification
+
+For respondent $i$ and item $j$:
+
+```{=tex}
+\begin{equation}\label{eq:IRT_cp}
+P(Y_{ij} = 1 \mid \theta_i, \tau_i) = 
+\begin{cases} 
+f_{ij} = g(\beta_j, \theta_i) & \text{if } \tau_i < j \\ 
+\tilde{f}_{ij} = g(\beta_j, \delta_j, \theta_i, \tau_i) & \text{if } \tau_i \geq j 
+\end{cases}
+\end{equation}
+```
+where:
+
+-   $g$ is a link function (e.g., logistic, normal ogive etc)
+
+-   $\theta_i$ is the latent ability
+
+-   $\tau_i$ is the individual change point
+
+-   $\beta_j$ are item parameters
+
+-   $\delta_j$ is the time pressure effect
+
+## Model specification, cont.
+
+We introduce a a monotonicity constraint: $\tilde{f}_{ij} < f_{ij}$ for $j > \tau_i$, that is, $$
+P(Y_{ij} = 1 | \theta_i, \tau_i, j > \tau_i) < P(Y_{ij} = 1 | \theta_i, \tau_i, j \leq \tau_i)
+$$
+
+This ensures that the probability of a correct item response decreases when a respondent is under time pressure.
+
+## Example
+
+Using the 2-PL model with logit link as the baseline, pre-change item responses are modelled by \begin{equation}
+f_{ij} = \frac{\exp(d_j + a_j \theta_i)}{\exp(1 + d_j + a_j \theta_i)}
+\end{equation}
+
+Post-change item responses are modelled by
+
+```{=tex}
+\begin{equation}\label{eq:2-PL_cp}
+\tilde{f}_{ij} = \frac{\exp(d_j + a_j \theta_i + \mathbb{1}_{\{j > \tau_i\}} \gamma_j)}{1 + \exp(d_j + a_j \theta_i + \mathbb{1}_{\{j > \tau_i\}} \gamma_j)}
+\end{equation}
+```
+
+
+## Path diagram
+
+![](path_diagram.png)
+
+
+## Structural model
+To characterize the distribution of the change points, we employ a general logistic model:
+
+$$
+\log \left( \frac{P(\tau = j+1)}{P(\tau = j)} \right) = \alpha, \quad j \geq c,
+$$
+Additionally, the probability of a respondent not having a response-style change, i.e., the event $\tau = J$, is modeled as:
+
+$$
+\text{logit}(P(\tau=J)) = \beta 
+$$
+For the latent trait $\theta_i$, we treat it as a random variable following a standard normal distribution, i.e., $\theta_i \sim \mathcal{N}(0,1)$.
+
+
+## Simulation Results
+
+![](rmse_c20-1.png)
+
+$N=3000$, $J=30$, $c=21$
+
+
+## Empirical Study
+* High-stakes test
+* 2,568 respondents
+* 28 items
+* $c$ selected through the BIC
+
+<div style="float: right; width: 50%; margin-left: 20px;">
+  <img src="remaining_time-1.png" style="width: 100%;">
+</div>
+
+
+## Response time and change-points
+
+<div style="width: 70%; margin: auto;">
+  <img src="RT_and_CP-1.png" style="width: 100%;">
+</div>
+
+
+## Summary
+
+* We propose an IRT framework for modeling change-points due to changes in response behavior and introduce time-pressure effects in the model
+* We demonstrate that we can handle both the setting with pre-calibrated item parameters (for which ability estimates improve) and the case with all parameters unknown
+* The usefulness is multiple: Improved estimation of latent scores, guidance for test developers regarding test length/time, LSAs (not reached items affect the latent score estimates).
+* Extensions are possible: Including covariates, more flexible model for the change-points, polytomous items etc.
